@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Compose Motions</string>
+    <string name="animate_content_change_in_layout">Animate Content Change in Layout</string>
+    <string name="animate_appearance_or_disappearance">Animate appearance/disappearance</string>
+    <string name="swapping_content_based_on_state">Swapping content based on state</string>
+    <string name="state_based_and_happens_during_composition">State-based and happens during composition</string>
+    <string name="animation_is_infinite">Animation is infinite</string>
+    <string name="animate_multiple_values_simultaneously">Animate multiple values simultaneously</string>
+    <string name="need_fine_control_over_animation_time">Need fine control over animation time</string>
+    <string name="animation_is_only_source_of_truth">Animation is the only source of truth</string>
+    <string name="animated_visibility" translatable="false">AnimatedVisibility</string>
+    <string name="animated_content_or_crossfade">AnimatedContent or Crossfade</string>
+    <string name="animate_content_size" translatable="false">animateContentSize</string>
+    <string name="update_transition" translatable="false">updateTransition</string>
+    <string name="animate_something_as_state" translatable="false">animate*AsState</string>
+    <string name="animation" translatable="false">Animation</string>
+    <string name="animatable" translatable="false">Animatable</string>
+    <string name="animation_state_or_animate">AnimationState or animate</string>
+    <string name="remember_infinite_transition" translatable="false">rememberInfiniteTransition</string>
+    <string name="start">Start</string>
+    <string name="next">Next</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="jetpack_compose_animations">Jetpack Compose Animations</string>
+    <string name="greet">Greet</string>
+    <string name="welcome_to_compose_motions">Welcome to Compose Motions</string>
+    <string name="show">Show</string>
+    <string name="image">Image</string>
+    <string name="long_text">You can use the animateContentSize modifier to animate size change in a composable. Note that the order in which you place this modifier in the chain of modifiers is important. So, make sure you place it before any size-modifying modifier in order to have a smooth animation.</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="please_take_care_of_your_code_by_documenting_it">Please take care of your code by documenting it because it is very important!</string>
+    <string name="welcome_to_compose_animations">Welcome to Compose animations</string>
+    <string name="cat_image_1">Cat Image 1</string>
+    <string name="toggle_on">Toggle On</string>
+    <string name="toggle_off">Toggle Off</string>
+    <string name="animate_float_scale">Animate Float: Scale</string>
+    <string name="animate_color_filter_color">Animate Color: Filter Color</string>
+    <string name="animate_dp_corner_size">Animate Dp: Corner Size</string>
+    <string name="animate_corner_color_scale">Animate Corner, Color, Scale</string>
+    <string name="animation_info">Time:%1$d ns \nValue: %2$d 😀</string>
+    <string name="animate_using_animate">Animate using <strong>animate</strong></string>
+    <string name="animate_using_animationstate">Animate using <strong>AnimationState</strong></string>
+    <string name="position_x_y">"Position: %1$f, %2$f"</string>
+    <string name="decayanimation" translatable="false">DecayAnimation</string>
+    <string name="targetbasedanimation" translatable="false">TargetBasedAnimation</string>
+</resources>
