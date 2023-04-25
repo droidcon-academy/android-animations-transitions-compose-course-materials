@@ -69,23 +69,30 @@ fun AnimateAsStateSheet() {
          */
         val imageRes by remember { mutableStateOf(R.drawable.dog2) }
 
-        //TODO: Add dp
         /**
          * Animated corner size for image
          */
-        val cornerSize = 0.dp
+        val cornerSize by animateDpAsState(targetValue = if(selected) 64.dp else 0.dp, label = "Corner",
+            animationSpec = tween(durationMillis = CORNER_DURATION)
+        )
 
-        //TODO: Animate color
         /**
          * Animated color used for filtering the image
          */
-        val filterColor = Color.Transparent
+        val filterColor by animateColorAsState(
+            targetValue = if(selected) Color.Yellow else Color.Transparent,
+            label = "Filter Color",
+            animationSpec = tween(durationMillis = COLOR_DURATION)
+        )
 
-        //TODO: Add animated scale
         /**
          * Animated scale for Image
          */
-        val scale = 1f
+        val scale by animateFloatAsState(
+            targetValue = if(selected) 0.8f else 1f,
+            label = "Scale",
+            animationSpec = tween(durationMillis = 500)
+        )
 
         Box(
             Modifier

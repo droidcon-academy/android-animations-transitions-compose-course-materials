@@ -80,27 +80,56 @@ fun UpdateTransitionSheet() {
     val favoriteState = remember{ mutableStateOf(Favorite.INITIAL) }
 
     //Create transition object for animating the first box
-    //TODO: Make a transition object named "transition" using "updateTransition"
+    val transition = updateTransition(targetState = favoriteState, label = "Favorites")
 
     val checked by remember { derivedStateOf { favoriteState.value == Favorite.STARTED } }
 
     //Create sweep animation as a child of transition
-    //TODO: Create a transition child called "sweep" animating from 0f t0 -360f
+    val sweep by transition.animateFloat(label = "Sweep",
+        transitionSpec = {
+            tween(durationMillis = DRAW_DURATION)
+        }) {
+        when(it.value){
+            Favorite.INITIAL -> 0f
+            Favorite.STARTED -> -360f
+        }
+    }
 
     //Create scale animation as child of transition
-    //TODO: Create a transition child called "scale" animating from 1f to 1.2f
+    val scale by transition.animateFloat(label = "Scale") {
+        when(it.value){
+            Favorite.INITIAL -> 1f
+            Favorite.STARTED -> 1.2f
+        }
+    }
 
     //For second box (MutableTransitionState)
     //MutableTransitionState allows the animation to start running as soon as the transition
     //enters composition
-    //TODO: Create a mutable transition state named "greetingState" with initial value of Greeting.HIDDEN and start animating to Greeting.SHOWN right away
+    val greetingState = remember{ MutableTransitionState(Greeting.HIDDEN) }
+    greetingState.targetState = Greeting.SHOWN
 
     //Create the transition object for favorite
-    //TODO: Create a transition for greeting called "greetingTransition"
+    val greetingTransition = updateTransition(transitionState = greetingState, label = "Greeting")
 
 
     //Create offset animation as a child of transition
-    //TODO: Create a transition child named "offset"
+    val offset by greetingTransition.animateOffset(label = "Offset",
+        transitionSpec = {
+            when{
+                Greeting.HIDDEN isTransitioningTo Greeting.SHOWN -> spring(
+                    dampingRatio = Spring.DampingRatioHighBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+                else -> tween(durationMillis = APPEAR_DURATION, easing = LinearEasing)
+            }
+        }
+    ) {
+        when(it){
+            Greeting.HIDDEN -> Offset(0f, 800f)
+            else -> Offset(0f, 0f)
+        }
+    }
 
 
     Column(Modifier.fillMaxSize()) {
@@ -135,16 +164,14 @@ fun UpdateTransitionSheet() {
             ){
                 //Draw an arc
                 drawArc(
-                    //TODO: Use the "sweep" transition value for sweepAngle
-                    Color.Green, startAngle = -90f, sweepAngle = 0f, useCenter = false,
+                    Color.Green, startAngle = -90f, sweepAngle = sweep, useCenter = false,
                     style = Stroke(width = 20f)
                 )
             }
             //Show a heart
             Icon(imageVector = Icons.Outlined.Favorite, contentDescription = Icons.Outlined.Favorite.name,
                 tint = Color.Red, modifier = Modifier
-                    //TODO: Use the "scale" transition's value for this modifier
-                    .scale(1f)
+                    .scale(scale)
                     .fillMaxSize(0.5f)
                     .align(Alignment.Center)
             )
@@ -160,8 +187,7 @@ fun UpdateTransitionSheet() {
             Text(text = stringResource(R.string.welcome_to_compose_animations), modifier = Modifier
                 .padding(16.dp)
                 .align(Alignment.Center)
-                //TODO: Use "offset" transition's value here
-                .offset { IntOffset(10, 10) },
+                .offset { IntOffset(offset.x.toInt(), offset.y.toInt()) },
                 style = MaterialTheme.typography.displayMedium
             )
 

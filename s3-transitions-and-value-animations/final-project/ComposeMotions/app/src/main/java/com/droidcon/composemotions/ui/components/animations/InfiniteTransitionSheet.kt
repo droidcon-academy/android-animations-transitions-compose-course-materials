@@ -48,33 +48,49 @@ const val TEXT_MOVE_DURATION = 10000
 @Composable
 fun InfiniteTransitionSheet() {
     //Define the infinite animation
-    //TODO: Define infinite transition and name it "infinite"
+    val infinite = rememberInfiniteTransition()
 
     //Define animating background color
-    //TODO: Define infinite background color "bgColor" using "infinite" from Material secondaryContainer to tertiary
+    val bgColor by infinite.animateColor(
+        initialValue = MaterialTheme.colorScheme.secondaryContainer,
+        targetValue = MaterialTheme.colorScheme.tertiary
+        , animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = COLOR_ANIMATION_DURATION)
+        ))
 
     //Get the width of the screen
     val width = LocalConfiguration.current.screenWidthDp.toFloat()
 
     //Offset for the text
-    //TODO: Make infinite offset, name it animatingOffset, animating from "width" to "-2*width"
+    val animatingOffset by infinite.animateValue(
+        initialValue = Offset(width, 100f),
+        targetValue = Offset(-2 * width, 100f),
+        typeConverter = TwoWayConverter(
+            convertToVector = { AnimationVector2D(it.x, it.y) },
+            convertFromVector = { Offset(it.v1, it.v2) }
+        ),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = TEXT_MOVE_DURATION, easing = LinearEasing)
+        )
+    )
 
 
 
     Box(
         Modifier
             .fillMaxSize()
-            .drawBehind{
-                //TODO: Change color to bgColor
-                drawRect(Color.Gray)
+            .drawBehind {
+                drawRect(bgColor)
             }
 
     ){
         Text(text = stringResource(R.string.please_take_care_of_your_code_by_documenting_it),
             modifier = Modifier
                 .width(1000.dp)
-                //TODO: Change to use "animatingOffset"
-                .offset{ IntOffset(100, 100)}
+                .offset { IntOffset(
+                    animatingOffset.x.toInt(),
+                    animatingOffset.y.toInt()
+                ) }
             ,
             maxLines = 1, //We want only one line that moves horizontally
             overflow = TextOverflow.Visible, //No clipping or ellipsis
