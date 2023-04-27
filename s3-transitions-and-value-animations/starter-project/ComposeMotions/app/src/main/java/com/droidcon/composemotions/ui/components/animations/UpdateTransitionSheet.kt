@@ -85,7 +85,7 @@ fun UpdateTransitionSheet() {
     val checked by remember { derivedStateOf { favoriteState.value == Favorite.STARTED } }
 
     //Create sweep animation as a child of transition
-    //TODO: Create a transition child called "sweep" animating from 0f t0 -360f
+    //TODO: Create a transition child called "sweep" animating from 0f to -360f
 
     //Create scale animation as child of transition
     //TODO: Create a transition child called "scale" animating from 1f to 1.2f

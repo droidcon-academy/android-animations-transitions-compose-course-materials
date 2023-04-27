@@ -179,7 +179,7 @@ fun AnimateAsStateSheet() {
                 modifier = Modifier
                     .fillMaxSize()
                     .scale(scale)
-                    .clip(RoundedCornerShape(cornerSize)),
+                    .clip(RoundedCornerShape(topStart = cornerSize)),
                 colorFilter = ColorFilter.tint(filterColor, blendMode = BlendMode.Difference)
             )
             Text(
