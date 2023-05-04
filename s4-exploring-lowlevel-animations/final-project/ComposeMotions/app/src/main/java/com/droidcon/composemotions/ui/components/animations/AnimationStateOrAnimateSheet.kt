@@ -1,7 +1,14 @@
 package com.droidcon.composemotions.ui.components.animations
 
+import androidx.compose.animation.VectorConverter
 import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -50,20 +57,52 @@ fun AnimationStateOrAnimateSheet() {
          * [AnimationState] variable to track the state of animation for [Color]
          */
         val animationState = remember {
-            0
-            //TODO: Make an AnimationState for Color with initial value of Cyan
+            AnimationState(
+                initialValue = Color.Cyan,
+                typeConverter = TwoWayConverter(
+                    convertToVector = {
+                                      AnimationVector4D(
+                                          it.red,
+                                          it.green,
+                                          it.blue,
+                                          it.alpha
+                                      )
+                    },
+                    convertFromVector = {
+                        Color(
+                            it.v1,
+                            it.v2,
+                            it.v3,
+                            it.v4
+                        )
+                    }
+                )
+            )
         }
 
         //Animate background color using "AnimationState"
         LaunchedEffect(Unit) {
             //Takes initial color from AnimationState and animates to the specified color
-            //TODO: Animate to Green repeatedly
+            animationState.animateTo(
+                targetValue = Color.Green,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = ANIMATION_DURATION)
+                )
+            )
         }
 
         //Animate translate using "animate"
         //Unlike "AnimationState"", "animate" specifies both initial and target value for the animation
         LaunchedEffect(Unit) {
-            //TODO: Animate "translate" to 200f using "animate()"
+            animate(
+                initialValue = 50f,
+                targetValue = 200f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = ANIMATION_DURATION)
+                )
+            ){ value,_ ->
+                translate = value
+            }
         }
 
         //Container for "AnimationState"
@@ -74,8 +113,7 @@ fun AnimationStateOrAnimateSheet() {
                 .fillMaxWidth()
                 .weight(1f)
                 .drawBehind{
-                    //TODO: Update Color to the value obtained from animationState
-                    drawRect(Color.Red)
+                    drawRect(animationState.value)
                 }
                 .align(Alignment.CenterHorizontally)
         ) {

@@ -129,7 +129,6 @@ fun AnimationSheet() {
             .padding(16.dp)
             .size(50.dp)
             .align(Alignment.CenterHorizontally)
-            .toggleable(value = activated, onValueChange = { activated = !activated })
             ,
             checked = activated,
             onCheckedChange = { activated = it }

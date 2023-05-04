@@ -78,25 +78,48 @@ fun AnimationSheet() {
      */
     var decayTime by remember { mutableStateOf(0L) }
 
-    //TODO: Define TargetBasedAnimation range. From 500 to -500, velocity = 500
     /**
      * Animation object created using [TargetBasedAnimation] animation wrapper class
      */
-    val anim = remember{0}
+    val anim = remember{
+        TargetBasedAnimation(
+            animationSpec = tween(durationMillis = ANIM_DURATION),
+            typeConverter = Int.VectorConverter,
+            initialValue = 500,
+            targetValue = -500,
+            initialVelocity = 500
+        )
+    }
 
 
-    //TODO: Define DecayAnimation, From 100f, velcity = 4000f, use exponentialDecay
     //Decay for decaying the animation
-    val decay = remember {0}
+    val decay = remember {
+        DecayAnimation(
+            initialValue = 100f,
+            initialVelocity = 4000f,
+            animationSpec = exponentialDecay(),
+            typeConverter = Float.VectorConverter
+        )
+    }
 
     //Launch the decay animation into the composition's coroutine context
     LaunchedEffect(activated){
-        //TODO: Launch DecayAnimation
+        val start = withFrameNanos { it }
+        do {
+            decayTime = withFrameNanos { it } - start
+            decayValue = decay.getValueFromNanos(decayTime)
+        } while( decayTime < 8000 * 1_000_000L)
+
+
     }
 
     //Launch the target-based animation into the composition's coroutine context
     LaunchedEffect(activated){
-        //TODO: Launch TargetBasedAnimation
+        val start = withFrameNanos { it }
+        do {
+            time = withFrameNanos { it } - start
+            animValue = anim.getValueFromNanos(time)
+        } while( animValue > -500 )
     }
 
     Column(Modifier.fillMaxSize()){
@@ -104,7 +127,6 @@ fun AnimationSheet() {
             .padding(16.dp)
             .size(50.dp)
             .align(Alignment.CenterHorizontally)
-            .toggleable(value = activated, onValueChange = { activated = !activated })
             ,
             checked = activated,
             onCheckedChange = { activated = it }

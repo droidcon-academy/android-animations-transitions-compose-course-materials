@@ -47,8 +47,12 @@ fun AnimatableSheet() {
     /**
      *  Animatable holding offset values
      */
-    var offset by remember { mutableStateOf(Offset(0f, 0f)) }
-    //TODO: Make offset Animatable
+    var offset = remember {
+        Animatable(
+            initialValue = Offset(0f, 0f),
+            typeConverter = Offset.VectorConverter
+        )
+    }
 
     Box(
         Modifier
@@ -63,8 +67,10 @@ fun AnimatableSheet() {
                             //Detect the pressed position, whose type is Offset
                             val position = awaitFirstDown().position
                             //Update offset value to new position with an animation
-                            offset = position
-                            //TODO: Animate the offset to position
+//                            offset = position
+                            launch {
+                                offset.animateTo(position)
+                            }
                         }
 
                     }
@@ -72,7 +78,7 @@ fun AnimatableSheet() {
             }
     ) {
         //Text to display current offset
-        Text(text = stringResource(R.string.position_x_y, offset.x, offset.y),
+        Text(text = stringResource(R.string.position_x_y, offset.value.x, offset.value.y),
             modifier = Modifier.align(Alignment.Center)
         )
 
@@ -83,8 +89,8 @@ fun AnimatableSheet() {
                 .offset {
                     IntOffset(
                         //IntOffset needs Int arguments
-                        offset.x.roundToInt(),
-                        offset.y.roundToInt()
+                        offset.value.x.roundToInt(),
+                        offset.value.y.roundToInt()
                     )
                 }
                 .size(50.dp)
