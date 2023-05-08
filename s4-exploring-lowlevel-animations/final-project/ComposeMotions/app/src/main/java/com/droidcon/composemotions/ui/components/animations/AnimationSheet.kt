@@ -130,6 +130,7 @@ fun AnimationSheet() {
             ,
             checked = activated,
             onCheckedChange = { activated = it }
+
         )
         //The offset of the following box will be modified using the animated value
         Box(Modifier
