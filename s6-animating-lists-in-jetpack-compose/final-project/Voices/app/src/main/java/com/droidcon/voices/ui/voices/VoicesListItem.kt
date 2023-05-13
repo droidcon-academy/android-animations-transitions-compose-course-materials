@@ -84,11 +84,10 @@ fun VoicesListItem(
      */
     var swipeMessage by remember { mutableStateOf(R.string.swipe_right_to_delete) }
 
-    //TODO: Declare a MutableTransitionState variable initialized to BookmarkStates.Disappeared and remember it
     /**
      * Transition state variable used to handle bookmark transition
      */
-    val transitionState = 0
+    val transitionState by remember { mutableStateOf(MutableTransitionState(BookmarkStates.Disappeared)) }
 
 
     /**
@@ -111,7 +110,7 @@ fun VoicesListItem(
                 )
                 .pointerInput(Unit) {
                     detectTapGestures(onDoubleTap = {
-                        //TODO: Set target state to BookmarkStates.Initial
+                        transitionState.targetState = BookmarkStates.Initial
                         bookmarkToggle = true
                     })
                 }
@@ -122,29 +121,80 @@ fun VoicesListItem(
                 onToggleBookmark(voice)
                 bookmarkToggle = false
             }
-            //TODO: Ensure state transitions are sequential
+            if (transitionState.currentState == BookmarkStates.Initial) {
+                transitionState.targetState = BookmarkStates.Bookmarked
+            } else if (transitionState.currentState == BookmarkStates.Bookmarked){
+                transitionState.targetState = BookmarkStates.Disappeared
+            }
 
 
-            //TODO: Create the bookmark transition
+            val bookmarkTransition = updateTransition(transitionState = transitionState, label = "Bookmark Transition")
 
-            //TODO: Define scale using transition
             /**
              * Scale transition to animate the scale of the bookmark icon
              */
-            val scale = remember{ 0f }
+            val scale by bookmarkTransition.animateFloat(
+                transitionSpec = {
+                    when{
+                        BookmarkStates.Initial isTransitioningTo BookmarkStates.Bookmarked -> spring(dampingRatio = Spring.DampingRatioHighBouncy)
+                        BookmarkStates.Bookmarked isTransitioningTo BookmarkStates.Disappeared -> tween(200)
+                        else -> snap()
+                    }
+            },
+            label = "Scale") {
+                when(it){
+                    BookmarkStates.Bookmarked -> 3f
+                    else -> 0f
+                }
+            }
 
-            //TODO: Define alpha using transition
             /**
              * Alpha transition for the alpha of the bookmark icon
              */
-            val alpha = remember{ 0f }
+            val alpha by bookmarkTransition.animateFloat(
+                transitionSpec = {
+                    when {
+                        BookmarkStates.Initial isTransitioningTo BookmarkStates.Bookmarked -> keyframes {
+                            durationMillis = 500
+                            0f at 0
+                            0.5f at 100
+                            1f at 300
+                        }
+                        BookmarkStates.Bookmarked isTransitioningTo BookmarkStates.Disappeared -> tween(300)
+                        else -> snap()
+                    }
+                },
+                label = "Alpha"
+            ) {
+                when(it){
+                    BookmarkStates.Bookmarked -> 1f
+                    else -> 0f
+                }
+            }
 
-            //TODO: Define bookmark icon rotation using transition
             /**
              * Rotation transition that is used to rotate the bookmark icon
              * Like alpha transition, this is only interested in two states: bookmarked and otherwise
              */
-            val bookmarkRotation = remember { 0f }
+            val bookmarkRotation by bookmarkTransition.animateFloat(
+                transitionSpec = {
+                    when{
+                        BookmarkStates.Initial isTransitioningTo BookmarkStates.Bookmarked -> keyframes {
+                            durationMillis = 500
+                            0f at 0
+                            180f at 200
+                            360f at 500
+                        }
+                        else -> tween(300)
+                    }
+                },
+                label = "Rotation"
+            ) {
+                when(it){
+                    BookmarkStates.Bookmarked -> 360f
+                    else -> 0f
+                }
+            }
 
             Text(stringResource(swipeMessage), Modifier
                 .padding(8.dp)
@@ -287,7 +337,6 @@ fun VoicesListItem(
 
 private fun Modifier.swipeRightToDelete(voice: Voice, onItemDelete: (voice : Voice) -> Unit) = composed {
     val offsetX = remember { Animatable(0f) }
-    //TODO: Detect drag gesture and animate offset accordingly
     pointerInput(Unit){
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
