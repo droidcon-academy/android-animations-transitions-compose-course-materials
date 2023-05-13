@@ -288,7 +288,40 @@ fun VoicesListItem(
 private fun Modifier.swipeRightToDelete(voice: Voice, onItemDelete: (voice : Voice) -> Unit) = composed {
     val offsetX = remember { Animatable(0f) }
     //TODO: Detect drag gesture and animate offset accordingly
-    offset { IntOffset(offsetX.value.roundToInt(), 0) }
+    pointerInput(Unit){
+        val decay = splineBasedDecay<Float>(this)
+        coroutineScope {
+            while(true){
+                val pointerId = awaitPointerEventScope { awaitFirstDown().id }
+                val velocityTracker = VelocityTracker()
+
+                offsetX.stop()
+                awaitPointerEventScope {
+                    horizontalDrag(pointerId){inputChange->
+                        launch{
+                            if (inputChange.positionChange().x >= 0){
+                                offsetX.snapTo(offsetX.value + inputChange.positionChange().x)
+                            }
+                        }
+                        velocityTracker.addPosition(timeMillis = inputChange.uptimeMillis, position = inputChange.position)
+
+
+                    }
+                }
+                val velocity = velocityTracker.calculateVelocity().x
+                val targetOffsetX = decay.calculateTargetValue(initialValue = offsetX.value, initialVelocity = velocity)
+                offsetX.updateBounds(lowerBound = - size.width.toFloat() * 0.1f, upperBound = size.width.toFloat())
+
+                if (targetOffsetX <= size.width){
+                    offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                } else {
+                    offsetX.animateDecay(initialVelocity = velocity, animationSpec = decay)
+                    onItemDelete(voice)
+                }
+            }
+        }
+    }
+        .offset { IntOffset(offsetX.value.roundToInt(), 0) }
 }
 
 @Preview

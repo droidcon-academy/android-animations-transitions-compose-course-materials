@@ -243,11 +243,10 @@ fun VoicesScreen(modifier: Modifier = Modifier, viewModel: VoicesViewModel = hil
                         )
                     }
                 }
-                //TODO: Pass unique key
-                itemsIndexed(items = uiState.items) { _, voice ->
+                itemsIndexed(items = uiState.items, key = {_,item -> item.id }) { _, voice ->
                     VoicesListItem(
                         modifier = Modifier
-                        //TODO: Add animateItemPlacement
+                            .animateItemPlacement()
                         ,
                         activeVoiceId = uiState.activeVoiceId,
                         activeVoiceState = uiState.activeVoiceState,
