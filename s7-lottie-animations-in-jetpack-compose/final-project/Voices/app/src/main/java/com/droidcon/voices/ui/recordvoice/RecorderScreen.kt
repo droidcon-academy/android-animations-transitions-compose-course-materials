@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package com.droidcon.voices.ui.recordvoice
 
@@ -9,6 +9,17 @@ import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +56,9 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.droidcon.voices.R
 import com.droidcon.voices.ui.VoiceDestinations
 import com.droidcon.voices.ui.theme.VoicesAppTheme
@@ -83,6 +97,22 @@ fun RecorderScreen(
         }
     }
 
+    //Lottie composition
+    val lottieComposition = rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.recording))
+
+    val infinite = rememberInfiniteTransition()
+
+    val recordProgress by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+
+
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -117,6 +147,23 @@ fun RecorderScreen(
                 style = MaterialTheme.typography.headlineMedium
 
             )
+
+            AnimatedVisibility (visible = uiState.currentState == RecorderState.RECORDING,
+                enter = fadeIn() + scaleIn() ,
+                exit = fadeOut() + scaleOut(),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(animationIndicator) {
+                        top.linkTo(title.bottom)
+                        bottom.linkTo(controls.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                LottieAnimation(composition = lottieComposition.value,
+                    progress = { recordProgress }
+                )
+            }
 
             //Recorder controls
             Row(
