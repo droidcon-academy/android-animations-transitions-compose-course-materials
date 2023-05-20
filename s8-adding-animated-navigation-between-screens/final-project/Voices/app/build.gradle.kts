@@ -141,4 +141,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
 
     implementation (libs.lottie.compose)
+
+    //Accompanist navigation animation
+    implementation (libs.accompanist.navigation.animation)
 }

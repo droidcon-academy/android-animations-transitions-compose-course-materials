@@ -1,10 +1,19 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package com.droidcon.voices.ui
 
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,12 +31,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.composable
 import androidx.navigation.compose.rememberNavController
+import com.droidcon.voices.ui.VoiceDestinations.VOICES_ROUTE
 import com.droidcon.voices.ui.permission.RecordAudioPermissionScreen
 import com.droidcon.voices.ui.recordvoice.RecorderScreen
 import com.droidcon.voices.ui.settings.SettingsScreen
 import com.droidcon.voices.ui.voices.VoicesScreen
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+
 /**
  * Slide duration for navigation transitions
  */
@@ -38,7 +51,7 @@ internal const val DEFAULT_ANIM_DURATION = 1_500
  */
 @Composable
 fun MainNavigation() {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     val navigationActions by remember(navController){ derivedStateOf { VoiceNavigationActions(navController)}}
     val snackbarHostState = remember{SnackbarHostState()}
     val micPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(), onResult = {ok->
@@ -62,7 +75,38 @@ fun MainNavigation() {
         snackbarHost = {SnackbarHost(snackbarHostState)}
     ) {paddingValues->
         val context = LocalContext.current
-        NavHost(navController = navController, startDestination = VoiceDestinations.RECORD_ROUTE, modifier = Modifier.padding(paddingValues)) {
+        AnimatedNavHost(navController = navController, startDestination = VoiceDestinations.RECORD_ROUTE, modifier = Modifier.padding(paddingValues),
+            enterTransition = {
+                when(targetState.destination.route){
+                    VoiceDestinations.VOICES_ROUTE -> fadeIn(animationSpec =
+                    tween(
+                        DEFAULT_ANIM_DURATION)
+                    )
+                    else -> slideInHorizontally(
+                        animationSpec = tween(DEFAULT_ANIM_DURATION),
+                        initialOffsetX = { width-> width }
+                    )
+                }
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(DEFAULT_ANIM_DURATION),
+                    targetOffsetX = { width -> -width }
+                )
+            },
+            popEnterTransition = {
+                slideInVertically(
+                    animationSpec = tween(DEFAULT_ANIM_DURATION),
+                    initialOffsetY = { height -> height }
+                )
+            },
+            popExitTransition = {
+                slideOutVertically(
+                    animationSpec = tween(DEFAULT_ANIM_DURATION),
+                    targetOffsetY = { height-> -height }
+                )
+            }
+            ) {
             composable(VoiceDestinations.RECORD_ROUTE) {
                 if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                     RecorderScreen(
@@ -99,7 +143,16 @@ fun MainNavigation() {
                     micPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                 })
             }
-            composable(VoiceDestinations.SETTINGS_ROUTE){
+            composable(VoiceDestinations.SETTINGS_ROUTE,
+                exitTransition = {
+                    if (targetState.destination.route == VOICES_ROUTE) {
+                        scaleOut(
+                            animationSpec = tween(DEFAULT_ANIM_DURATION)
+                        )
+                    }
+                    else null
+                }
+            ){
                 SettingsScreen(modifier = Modifier
                     .fillMaxSize()
                     .padding(4.dp)
